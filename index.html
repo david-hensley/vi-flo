@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>VI-FLO — Virgin Islands Freshwater and Landscapes Observatory</title>
-<meta name="description" content="A repository and management system for freshwater and hydrological data in the US Virgin Islands.">
+<meta name="description" content="A repository and management system for freshwater and hydrological data in the Virgin Islands.">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -12,16 +12,18 @@
 
 <style>
   /* ---------------------------------------------------------------
-     PALETTE — these values control the whole page
+     PALETTE — sampled from the VI-FLO logo so the page ground and
+     the mark are the same colour with no visible seam.
      --------------------------------------------------------------- */
   :root {
-    --ink:    #08151F;   /* page ground, deep water */
-    --raised: #12293C;   /* hover panel */
-    --rule:   #1E3D55;   /* hairlines */
-    --pale:   #DCE9F2;   /* body text */
-    --muted:  #93B3C9;   /* secondary text */
-    --blue:   #6FB6DE;   /* links, hydrograph */
-    --amber:  #F7AC3C;   /* brand accent: arrow and section headings */
+    --navy:   #0E2A42;   /* page ground = logo background */
+    --raised: #17384F;   /* hover panel */
+    --rule:   #24506E;   /* hairlines */
+    --pale:   #EAF4FB;   /* wordmark and body text */
+    --muted:  #9FC0D6;   /* secondary text */
+    --link:   #7BC8E8;   /* links */
+    --cyan:   #3FC8F0;   /* hydrograph trace */
+    --amber:  #F7AC3C;   /* brand accent: arrow, tagline, headings */
 
     --pad: clamp(1.5rem, 5vw, 4rem);
   }
@@ -31,7 +33,7 @@
 
   body {
     margin: 0;
-    background: var(--ink);
+    background: var(--navy);
     color: var(--pale);
     font-family: 'Archivo', system-ui, sans-serif;
     font-size: clamp(1.05rem, 1rem + 0.35vw, 1.2rem);
@@ -40,105 +42,109 @@
   }
 
   .wrap {
-    max-width: 52rem;          /* single centred column */
+    max-width: 52rem;
     margin: 0 auto;
     padding-left: var(--pad);
     padding-right: var(--pad);
   }
 
-  a { color: var(--blue); text-underline-offset: 0.18em; }
+  a { color: var(--link); text-underline-offset: 0.18em; }
   a:focus-visible { outline: 2px solid var(--amber); outline-offset: 3px; }
 
-  /* ---------------------------------------------------------------
-     HERO
-     --------------------------------------------------------------- */
+  /* ===============================================================
+     HERO — the logo, rebuilt in the page rather than pasted in.
+     Rain behind, wordmark and tagline over it, hydrograph beneath.
+     =============================================================== */
   header.hero {
-    padding-top: clamp(3rem, 8vw, 5.5rem);
-    text-align: center;
+    position: relative;
+    overflow: hidden;
+    padding-top: clamp(2.5rem, 7vw, 4.5rem);
   }
 
-  .logo {
-    display: block;
-    width: min(100%, 36rem);
-    height: auto;
-    margin: 0 auto;
+  /* Rain, drawn behind everything in the hero */
+  .rain {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
   }
+  .rain line { stroke: #35617F; stroke-width: 3; stroke-linecap: round; }
 
-  /* Fallback wordmark, shown if no logo file is present.
-     The arrow is drawn as SVG so it matches the weight of the
-     Archivo Black letterforms rather than a thin text glyph. */
+  .hero .wrap { position: relative; }
+
+  /* ---------------- Wordmark ---------------- */
   .wordmark {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 0.14em;
+    gap: 0.1em;
     font-family: 'Archivo Black', sans-serif;
-    font-size: clamp(2.75rem, 12vw, 6.5rem);
-    letter-spacing: -0.02em;
+    font-size: clamp(3rem, 15vw, 8.5rem);
+    letter-spacing: -0.015em;
     line-height: 1;
     margin: 0;
+    color: var(--pale);
   }
-  .wordmark svg {
-    width: 0.78em;
-    height: 0.5em;
+  .wordmark .arrow {
+    width: 0.66em;
+    height: 0.39em;
     flex: none;
     fill: var(--amber);
+    margin: 0 0.04em;
   }
 
   .tagline {
-    font-size: clamp(1.15rem, 1rem + 1vw, 1.6rem);
-    font-weight: 400;
-    line-height: 1.35;
-    color: var(--muted);
-    margin: 1.25rem auto 0;
-    max-width: 24em;
+    font-size: clamp(1.15rem, 0.9rem + 1.15vw, 1.75rem);
+    font-weight: 500;
+    line-height: 1.3;
+    color: var(--amber);
+    text-align: center;
+    margin: clamp(1rem, 2.5vw, 1.75rem) auto 0;
+    max-width: 22em;
   }
 
-  /* ---------------------------------------------------------------
-     SIGNATURE — storm hydrograph, drawn on load.
-     Sharp rising limb, long recession: a flashy catchment
-     responding to rain.
-     --------------------------------------------------------------- */
+  /* ---------------- Hydrograph ----------------
+     The storm response from the logo: a long dry baseline, a sharp
+     rising limb, then a recession broken by two smaller pulses.
+     Drawn on load, left to right.
+     -------------------------------------------- */
   .hydrograph {
     display: block;
     width: 100%;
-    height: clamp(90px, 15vw, 160px);
-    margin-top: clamp(2.5rem, 6vw, 4rem);
-    overflow: visible;
+    height: clamp(130px, 22vw, 250px);
+    margin-top: clamp(1.5rem, 4vw, 3rem);
   }
   .hydrograph .trace {
     fill: none;
-    stroke: var(--blue);
-    stroke-width: 2.25;
+    stroke: var(--cyan);
+    stroke-width: 4;
     stroke-linecap: round;
     stroke-linejoin: round;
-    stroke-dasharray: 1400;
-    stroke-dashoffset: 1400;
-    animation: draw 2.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    animation: draw 2.8s cubic-bezier(0.33, 0, 0.2, 1) forwards;
   }
-  .hydrograph .fill {
-    fill: url(#fade);
+  .hydrograph .storm {
+    fill: url(#stormfill);
     opacity: 0;
-    animation: fadein 1.4s ease 1.6s forwards;
+    animation: rise 1.6s ease 1.5s forwards;
   }
-  .hydrograph .baseline { stroke: var(--rule); stroke-width: 1; }
-
-  @keyframes draw   { to { stroke-dashoffset: 0; } }
-  @keyframes fadein { to { opacity: 1; } }
+  @keyframes draw { to { stroke-dashoffset: 0; } }
+  @keyframes rise { to { opacity: 1; } }
 
   @media (prefers-reduced-motion: reduce) {
     .hydrograph .trace { animation: none; stroke-dashoffset: 0; }
-    .hydrograph .fill  { animation: none; opacity: 1; }
+    .hydrograph .storm { animation: none; opacity: 1; }
     html { scroll-behavior: auto; }
   }
 
-  /* ---------------------------------------------------------------
-     SECTIONS — centred heading, then text straight down the page
-     --------------------------------------------------------------- */
+  /* ===============================================================
+     SECTIONS
+     =============================================================== */
   section { padding-top: clamp(3.5rem, 8vw, 5.5rem); }
 
   .section-head {
-    font-family: 'Archivo', sans-serif;
     font-weight: 500;
     font-size: clamp(1.35rem, 1rem + 1.6vw, 1.85rem);
     line-height: 1.3;
@@ -164,9 +170,7 @@
   /* To centre the paragraph text too, add: text-align: center; here */
   .prose { }
 
-  /* ---------------------------------------------------------------
-     INDEX — one row per destination
-     --------------------------------------------------------------- */
+  /* ---------------- Index of destinations ---------------- */
   .index { margin-top: 2.25rem; border-top: 1px solid var(--rule); }
 
   .entry {
@@ -184,31 +188,20 @@
     background: var(--raised);
     padding-left: 0.75rem;
   }
-
   .entry .name {
     font-family: 'Archivo Black', sans-serif;
     font-size: 0.98rem;
     letter-spacing: -0.01em;
   }
-  .entry .what {
-    color: var(--muted);
-    font-size: 1rem;
-    line-height: 1.45;
-  }
-  .entry .go {
-    color: var(--amber);
-    font-size: 1.15rem;
-    text-align: right;
-  }
+  .entry .what { color: var(--muted); font-size: 1rem; line-height: 1.45; }
+  .entry .go   { color: var(--amber); font-size: 1.15rem; text-align: right; }
 
   @media (max-width: 42rem) {
     .entry { grid-template-columns: minmax(0, 1fr) 1.5rem; gap: 0.3rem 1rem; }
     .entry .what { grid-column: 1; }
   }
 
-  /* ---------------------------------------------------------------
-     CONTACT
-     --------------------------------------------------------------- */
+  /* ---------------- Contact ---------------- */
   .details { margin-top: 1.5rem; text-align: center; }
   .details p { margin: 0 0 1.1em; }
   .details p:last-child { margin-bottom: 0; }
@@ -234,49 +227,85 @@
 <body>
 
 <header class="hero">
+
+  <!-- Rain, matching the logo tile -->
+  <svg class="rain" viewBox="0 0 1200 620" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+    <g opacity="0.55">
+      <line x1="30"   y1="20"  x2="24"   y2="86"  opacity="0.6"/>
+      <line x1="96"   y1="140" x2="90"   y2="196" opacity="0.4"/>
+      <line x1="150"  y1="330" x2="144"  y2="402" opacity="0.5"/>
+      <line x1="214"  y1="60"  x2="208"  y2="128" opacity="0.35"/>
+      <line x1="262"  y1="250" x2="256"  y2="300" opacity="0.55"/>
+      <line x1="318"  y1="420" x2="312"  y2="482" opacity="0.4"/>
+      <line x1="360"  y1="30"  x2="354"  y2="104" opacity="0.5"/>
+      <line x1="418"  y1="196" x2="412"  y2="252" opacity="0.35"/>
+      <line x1="470"  y1="360" x2="464"  y2="430" opacity="0.45"/>
+      <line x1="524"  y1="86"  x2="518"  y2="140" opacity="0.55"/>
+      <line x1="576"  y1="286" x2="570"  y2="352" opacity="0.35"/>
+      <line x1="628"  y1="120" x2="622"  y2="182" opacity="0.5"/>
+      <line x1="676"  y1="440" x2="670"  y2="498" opacity="0.4"/>
+      <line x1="724"  y1="40"  x2="718"  y2="112" opacity="0.45"/>
+      <line x1="778"  y1="230" x2="772"  y2="284" opacity="0.55"/>
+      <line x1="826"  y1="382" x2="820"  y2="446" opacity="0.35"/>
+      <line x1="884"  y1="96"  x2="878"  y2="158" opacity="0.5"/>
+      <line x1="932"  y1="300" x2="926"  y2="356" opacity="0.4"/>
+      <line x1="986"  y1="160" x2="980"  y2="228" opacity="0.45"/>
+      <line x1="1040" y1="410" x2="1034" y2="470" opacity="0.35"/>
+      <line x1="1088" y1="60"  x2="1082" y2="126" opacity="0.55"/>
+      <line x1="1146" y1="270" x2="1140" y2="330" opacity="0.4"/>
+      <line x1="60"   y1="470" x2="54"   y2="524" opacity="0.35"/>
+      <line x1="190"  y1="520" x2="184"  y2="580" opacity="0.3"/>
+      <line x1="400"  y1="530" x2="394"  y2="586" opacity="0.3"/>
+      <line x1="620"  y1="560" x2="614"  y2="606" opacity="0.28"/>
+      <line x1="840"  y1="520" x2="834"  y2="576" opacity="0.3"/>
+      <line x1="1060" y1="540" x2="1054" y2="596" opacity="0.28"/>
+      <line x1="482"  y1="470" x2="476"  y2="516" opacity="0.32"/>
+      <line x1="900"  y1="450" x2="894"  y2="504" opacity="0.32"/>
+    </g>
+  </svg>
+
   <div class="wrap">
+    <h1 class="wordmark">
+      <span>VI</span>
+      <!-- The arrow from the logo: heavy rectangular shaft, sharp head -->
+      <svg class="arrow" viewBox="0 0 170 100" aria-hidden="true">
+        <rect x="0" y="28" width="112" height="44"/>
+        <polygon points="100,0 170,50 100,100"/>
+      </svg>
+      <span>FLO</span>
+    </h1>
 
-    <!-- ============================================================
-         LOGO — upload the DARK variant of your logo tile to an
-         "images" folder in the repo. If the file is missing, the
-         text wordmark below shows instead.
-         ============================================================ -->
-    <img class="logo"
-         src="images/vi-flo-logo.png"
-         alt="VI-FLO — Virgin Islands Freshwater and Landscapes Observatory"
-         onerror="this.style.display='none';document.getElementById('fallback').hidden=false;">
-
-    <div id="fallback" hidden>
-      <p class="wordmark">
-        <span>VI</span>
-        <!-- Arrow drawn to match the logo: heavy shaft, blunt head.
-             Adjust the two numbers in the polygon to reshape the head. -->
-        <svg viewBox="0 0 100 44" aria-hidden="true">
-          <rect x="0" y="15" width="62" height="14"/>
-          <polygon points="55,0 100,22 55,44"/>
-        </svg>
-        <span>FLO</span>
-      </p>
-    </div>
-
-    <p class="tagline">The Virgin Islands Freshwater and Landscapes Observatory</p>
-
-    <svg class="hydrograph" viewBox="0 0 800 150" preserveAspectRatio="none"
-         role="img" aria-label="A stylised storm hydrograph: a sharp rise followed by a long recession.">
-      <defs>
-        <linearGradient id="fade" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%"   stop-color="#6FB6DE" stop-opacity="0.26"/>
-          <stop offset="100%" stop-color="#6FB6DE" stop-opacity="0"/>
-        </linearGradient>
-      </defs>
-      <path class="fill"
-            d="M0,138 L150,136 L200,130 L235,54 L250,22 L275,46 L320,78 L400,102 L500,120 L620,130 L800,136 L800,150 L0,150 Z"/>
-      <path class="trace"
-            d="M0,138 L150,136 L200,130 L235,54 L250,22 L275,46 L320,78 L400,102 L500,120 L620,130 L800,136"/>
-      <line class="baseline" x1="0" y1="149" x2="800" y2="149"/>
-    </svg>
-
+    <p class="tagline">Virgin Islands Freshwater and Landscapes Observatory</p>
   </div>
+
+  <!-- The logo's hydrograph, drawn on load -->
+  <svg class="hydrograph" viewBox="0 0 1200 300" preserveAspectRatio="none"
+       role="img" aria-label="A storm hydrograph: a long dry baseline, a sharp rise, then a stepped recession.">
+    <defs>
+      <linearGradient id="stormfill" x1="0" y1="0" x2="0.35" y2="1">
+        <stop offset="0%"   stop-color="#2E86C4"/>
+        <stop offset="100%" stop-color="#123C5F"/>
+      </linearGradient>
+    </defs>
+
+    <path class="storm"
+          d="M0,268 L268,268 L282,262 L300,40
+             C336,92 404,134 520,158
+             L530,120
+             C572,158 646,182 762,200
+             L772,176
+             C852,206 1010,228 1200,244
+             L1200,300 L0,300 Z"/>
+
+    <path class="trace" pathLength="1"
+          d="M0,268 L268,268 L282,262 L300,40
+             C336,92 404,134 520,158
+             L530,120
+             C572,158 646,182 762,200
+             L772,176
+             C852,206 1010,228 1200,244"/>
+  </svg>
+
 </header>
 
 <main>
@@ -284,10 +313,10 @@
   <section id="about">
     <div class="wrap">
       <p class="section-head">What the observatory is</p>
-      <h2>Hydrological data for the US Virgin Islands, kept in one place.</h2>
+      <h2>Hydrological data for the Virgin Islands, kept in one place.</h2>
       <div class="prose">
         <p class="first">VI-FLO collects, organises, and makes available freshwater and
-        landscape data from across the territory — for research, for water management,
+        landscape data from across the Virgin Islands — for research, for water management,
         and for anyone who needs to know what the water here has been doing.</p>
 
         <p>Small tropical islands are chronically data-scarce. Records get collected by
@@ -297,8 +326,7 @@
         results, geospatial layers, and relevant third-party datasets, all held under a
         consistent structure.</p>
 
-        <p>VI-FLO is based at the University of the Virgin Islands Agricultural
-        Experiment Station on St. Croix.</p>
+        <p>VI-FLO is based at the University of the Virgin Islands School of Agriculture in St. Croix.</p>
       </div>
     </div>
   </section>
@@ -349,9 +377,6 @@
     <div class="wrap">
       <p class="section-head">Data requests and collaboration</p>
       <h2>Get in touch</h2>
-      <!-- ============================================================
-           REPLACE the placeholder details below.
-           ============================================================ -->
       <div class="details">
         <p class="who">DAVID A. HENSLEY</p>
         <p><a href="mailto:david.hensley@uvi.edu">david.hensley@uvi.edu</a></p>
