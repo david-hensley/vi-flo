@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>VI-FLO — Virgin Islands Freshwater and Landscapes Observatory</title>
+<meta name="description" content="A repository and management system for freshwater and hydrological data in the US Virgin Islands.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Archivo:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+  /* ---------------------------------------------------------------
+     PALETTE — these values control the whole page
+     --------------------------------------------------------------- */
+  :root {
+    --ink:    #08151F;   /* page ground, deep water */
+    --raised: #12293C;   /* hover panel */
+    --rule:   #1E3D55;   /* hairlines */
+    --pale:   #DCE9F2;   /* body text */
+    --muted:  #93B3C9;   /* secondary text */
+    --blue:   #6FB6DE;   /* links, hydrograph */
+    --amber:  #F7AC3C;   /* brand accent: arrow and section headings */
+
+    --pad: clamp(1.5rem, 5vw, 4rem);
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    margin: 0;
+    background: var(--ink);
+    color: var(--pale);
+    font-family: 'Archivo', system-ui, sans-serif;
+    font-size: clamp(1.05rem, 1rem + 0.35vw, 1.2rem);
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap {
+    max-width: 52rem;          /* single centred column */
+    margin: 0 auto;
+    padding-left: var(--pad);
+    padding-right: var(--pad);
+  }
+
+  a { color: var(--blue); text-underline-offset: 0.18em; }
+  a:focus-visible { outline: 2px solid var(--amber); outline-offset: 3px; }
+
+  /* ---------------------------------------------------------------
+     HERO
+     --------------------------------------------------------------- */
+  header.hero {
+    padding-top: clamp(3rem, 8vw, 5.5rem);
+    text-align: center;
+  }
+
+  .logo {
+    display: block;
+    width: min(100%, 36rem);
+    height: auto;
+    margin: 0 auto;
+  }
+
+  /* Fallback wordmark, shown if no logo file is present.
+     The arrow is drawn as SVG so it matches the weight of the
+     Archivo Black letterforms rather than a thin text glyph. */
+  .wordmark {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.14em;
+    font-family: 'Archivo Black', sans-serif;
+    font-size: clamp(2.75rem, 12vw, 6.5rem);
+    letter-spacing: -0.02em;
+    line-height: 1;
+    margin: 0;
+  }
+  .wordmark svg {
+    width: 0.78em;
+    height: 0.5em;
+    flex: none;
+    fill: var(--amber);
+  }
+
+  .tagline {
+    font-size: clamp(1.15rem, 1rem + 1vw, 1.6rem);
+    font-weight: 400;
+    line-height: 1.35;
+    color: var(--muted);
+    margin: 1.25rem auto 0;
+    max-width: 24em;
+  }
+
+  /* ---------------------------------------------------------------
+     SIGNATURE — storm hydrograph, drawn on load.
+     Sharp rising limb, long recession: a flashy catchment
+     responding to rain.
+     --------------------------------------------------------------- */
+  .hydrograph {
+    display: block;
+    width: 100%;
+    height: clamp(90px, 15vw, 160px);
+    margin-top: clamp(2.5rem, 6vw, 4rem);
+    overflow: visible;
+  }
+  .hydrograph .trace {
+    fill: none;
+    stroke: var(--blue);
+    stroke-width: 2.25;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-dasharray: 1400;
+    stroke-dashoffset: 1400;
+    animation: draw 2.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  }
+  .hydrograph .fill {
+    fill: url(#fade);
+    opacity: 0;
+    animation: fadein 1.4s ease 1.6s forwards;
+  }
+  .hydrograph .baseline { stroke: var(--rule); stroke-width: 1; }
+
+  @keyframes draw   { to { stroke-dashoffset: 0; } }
+  @keyframes fadein { to { opacity: 1; } }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hydrograph .trace { animation: none; stroke-dashoffset: 0; }
+    .hydrograph .fill  { animation: none; opacity: 1; }
+    html { scroll-behavior: auto; }
+  }
+
+  /* ---------------------------------------------------------------
+     SECTIONS — centred heading, then text straight down the page
+     --------------------------------------------------------------- */
+  section { padding-top: clamp(3.5rem, 8vw, 5.5rem); }
+
+  .section-head {
+    font-family: 'Archivo', sans-serif;
+    font-weight: 500;
+    font-size: clamp(1.35rem, 1rem + 1.6vw, 1.85rem);
+    line-height: 1.3;
+    color: var(--amber);
+    text-align: center;
+    margin: 0 0 0.6rem;
+  }
+
+  h2 {
+    font-family: 'Archivo Black', sans-serif;
+    font-size: clamp(1.45rem, 1rem + 2vw, 2.1rem);
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+    text-align: center;
+    margin: 0 auto 1.6rem;
+    max-width: 18em;
+  }
+
+  .prose p { margin: 0 0 1.05em; }
+  .prose p:last-child { margin-bottom: 0; }
+  .prose .first { font-size: 1.1em; line-height: 1.55; }
+
+  /* To centre the paragraph text too, add: text-align: center; here */
+  .prose { }
+
+  /* ---------------------------------------------------------------
+     INDEX — one row per destination
+     --------------------------------------------------------------- */
+  .index { margin-top: 2.25rem; border-top: 1px solid var(--rule); }
+
+  .entry {
+    display: grid;
+    grid-template-columns: minmax(0, 11rem) minmax(0, 1fr) 1.5rem;
+    gap: 0 1.75rem;
+    align-items: baseline;
+    padding: 1.2rem 0;
+    border-bottom: 1px solid var(--rule);
+    text-decoration: none;
+    color: inherit;
+    transition: background 0.15s ease, padding-left 0.15s ease;
+  }
+  .entry:hover, .entry:focus-visible {
+    background: var(--raised);
+    padding-left: 0.75rem;
+  }
+
+  .entry .name {
+    font-family: 'Archivo Black', sans-serif;
+    font-size: 0.98rem;
+    letter-spacing: -0.01em;
+  }
+  .entry .what {
+    color: var(--muted);
+    font-size: 1rem;
+    line-height: 1.45;
+  }
+  .entry .go {
+    color: var(--amber);
+    font-size: 1.15rem;
+    text-align: right;
+  }
+
+  @media (max-width: 42rem) {
+    .entry { grid-template-columns: minmax(0, 1fr) 1.5rem; gap: 0.3rem 1rem; }
+    .entry .what { grid-column: 1; }
+  }
+
+  /* ---------------------------------------------------------------
+     CONTACT
+     --------------------------------------------------------------- */
+  .details { margin-top: 1.5rem; text-align: center; }
+  .details p { margin: 0 0 1.1em; }
+  .details p:last-child { margin-bottom: 0; }
+  .details .who {
+    font-family: 'Archivo Black', sans-serif;
+    font-size: 1.05rem;
+    margin-bottom: 0.35em;
+  }
+  .details .where { color: var(--muted); font-size: 1rem; line-height: 1.55; }
+
+  footer {
+    margin-top: clamp(4.5rem, 10vw, 8rem);
+    border-top: 1px solid var(--rule);
+    padding: 1.75rem 0 3.5rem;
+    font-size: 0.95rem;
+    color: var(--muted);
+    text-align: center;
+  }
+  footer p { margin: 0; }
+</style>
+</head>
+
+<body>
+
+<header class="hero">
+  <div class="wrap">
+
+    <!-- ============================================================
+         LOGO — upload the DARK variant of your logo tile to an
+         "images" folder in the repo. If the file is missing, the
+         text wordmark below shows instead.
+         ============================================================ -->
+    <img class="logo"
+         src="images/vi-flo-logo.png"
+         alt="VI-FLO — Virgin Islands Freshwater and Landscapes Observatory"
+         onerror="this.style.display='none';document.getElementById('fallback').hidden=false;">
+
+    <div id="fallback" hidden>
+      <p class="wordmark">
+        <span>VI</span>
+        <!-- Arrow drawn to match the logo: heavy shaft, blunt head.
+             Adjust the two numbers in the polygon to reshape the head. -->
+        <svg viewBox="0 0 100 44" aria-hidden="true">
+          <rect x="0" y="15" width="62" height="14"/>
+          <polygon points="55,0 100,22 55,44"/>
+        </svg>
+        <span>FLO</span>
+      </p>
+    </div>
+
+    <p class="tagline">The Virgin Islands Freshwater and Landscapes Observatory</p>
+
+    <svg class="hydrograph" viewBox="0 0 800 150" preserveAspectRatio="none"
+         role="img" aria-label="A stylised storm hydrograph: a sharp rise followed by a long recession.">
+      <defs>
+        <linearGradient id="fade" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%"   stop-color="#6FB6DE" stop-opacity="0.26"/>
+          <stop offset="100%" stop-color="#6FB6DE" stop-opacity="0"/>
+        </linearGradient>
+      </defs>
+      <path class="fill"
+            d="M0,138 L150,136 L200,130 L235,54 L250,22 L275,46 L320,78 L400,102 L500,120 L620,130 L800,136 L800,150 L0,150 Z"/>
+      <path class="trace"
+            d="M0,138 L150,136 L200,130 L235,54 L250,22 L275,46 L320,78 L400,102 L500,120 L620,130 L800,136"/>
+      <line class="baseline" x1="0" y1="149" x2="800" y2="149"/>
+    </svg>
+
+  </div>
+</header>
+
+<main>
+
+  <section id="about">
+    <div class="wrap">
+      <p class="section-head">What the observatory is</p>
+      <h2>Hydrological data for the US Virgin Islands, kept in one place.</h2>
+      <div class="prose">
+        <p class="first">VI-FLO collects, organises, and makes available freshwater and
+        landscape data from across the territory — for research, for water management,
+        and for anyone who needs to know what the water here has been doing.</p>
+
+        <p>Small tropical islands are chronically data-scarce. Records get collected by
+        separate projects, in incompatible formats, and are often lost when the funding
+        ends. The observatory exists to keep that data intact and usable: high-frequency
+        logger records of water level and soil moisture, field measurements, laboratory
+        results, geospatial layers, and relevant third-party datasets, all held under a
+        consistent structure.</p>
+
+        <p>VI-FLO is based at the University of the Virgin Islands Agricultural
+        Experiment Station on St. Croix.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="data">
+    <div class="wrap">
+      <p class="section-head">Openly available</p>
+      <h2>Data and models</h2>
+      <div class="prose">
+        <p>Dashboards and a searchable catalogue will be added here as they come online.</p>
+      </div>
+
+      <!-- ============================================================
+           REPLACE each href="#" with the real link.
+           To add a destination, copy one <a class="entry"> block.
+           ============================================================ -->
+      <div class="index">
+
+        <a class="entry" href="#">
+          <span class="name">vi-flo-engine</span>
+          <span class="what">Instrument records from the observatory's own logger network.</span>
+          <span class="go" aria-hidden="true">&#8594;</span>
+        </a>
+
+        <a class="entry" href="#">
+          <span class="name">vi-flo-catalog</span>
+          <span class="what">Datasets compiled from across the territory.</span>
+          <span class="go" aria-hidden="true">&#8594;</span>
+        </a>
+
+        <a class="entry" href="#">
+          <span class="name">CARIFLUX</span>
+          <span class="what">A daily soil water balance model for Caribbean islands.</span>
+          <span class="go" aria-hidden="true">&#8594;</span>
+        </a>
+
+        <a class="entry" href="#">
+          <span class="name">cariflux-data</span>
+          <span class="what">Regional soil and land cover data, mirrored for fast access.</span>
+          <span class="go" aria-hidden="true">&#8594;</span>
+        </a>
+
+      </div>
+    </div>
+  </section>
+
+  <section id="contact">
+    <div class="wrap">
+      <p class="section-head">Data requests and collaboration</p>
+      <h2>Get in touch</h2>
+      <!-- ============================================================
+           REPLACE the placeholder details below.
+           ============================================================ -->
+      <div class="details">
+        <p class="who">DAVID A. HENSLEY</p>
+        <p><a href="mailto:david.hensley@uvi.edu">david.hensley@uvi.edu</a></p>
+        <p class="where">School of Agriculture<br>
+          University of the Virgin Islands<br>
+          10,000 Castle Burke<br>
+          Kingshill, St. Croix, Virgin Islands 00850</p>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <p>VI-FLO &middot; Virgin Islands Freshwater and Landscapes Observatory</p>
+  </div>
+</footer>
+
+</body>
+</html>
